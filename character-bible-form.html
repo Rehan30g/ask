@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Character Bible — Alan & Pacarnya</title>
+<style>
+  :root{
+    --bg:#F6F5F2;
+    --surface:#FFFFFF;
+    --text:#1D2027;
+    --text-muted:#6B6F76;
+    --border:#E3E1DC;
+    --accent:#2F6F5E;
+    --accent-dark:#245A4A;
+    --send:#1FA463;
+    --send-hover:#188F55;
+    --warn:#B5482E;
+    --radius:4px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    line-height:1.5;
+    padding:32px 20px 60px;
+    min-height:100vh;
+  }
+  .page{
+    max-width:520px;
+    margin:0 auto;
+  }
+  header{
+    margin-bottom:28px;
+  }
+  header h1{
+    font-size:20px;
+    font-weight:650;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  header p{
+    font-size:13.5px;
+    color:var(--text-muted);
+    margin:0 0 18px;
+    max-width:46ch;
+  }
+  .progress{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    color:var(--text-muted);
+  }
+  .progress-track{
+    flex:1;
+    height:4px;
+    background:var(--border);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--accent);
+    transition:width .2s ease;
+  }
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:26px 22px;
+    min-height:260px;
+    display:flex;
+    flex-direction:column;
+  }
+  .section-label{
+    font-size:12.5px;
+    color:var(--accent);
+    font-weight:600;
+    margin-bottom:8px;
+  }
+  .q-heading{
+    font-size:18px;
+    font-weight:650;
+    margin:0 0 20px;
+    letter-spacing:-0.01em;
+  }
+  .q-heading .num{
+    color:var(--text-muted);
+    font-weight:600;
+    margin-right:6px;
+  }
+  .options{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .option-btn{
+    font-family:inherit;
+    font-size:13.5px;
+    padding:10px 14px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    color:var(--text);
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .option-btn:hover{
+    border-color:var(--accent);
+  }
+  .option-btn:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+  .option-btn.selected{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#fff;
+  }
+  .text-input{
+    width:100%;
+    padding:13px 14px;
+    font-size:15px;
+    font-family:inherit;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    color:var(--text);
+  }
+  .text-input:focus{
+    outline:2px solid var(--accent);
+    outline-offset:1px;
+    border-color:var(--accent);
+  }
+  .options.needs-attention,
+  .text-input.needs-attention{
+    outline:1.5px solid var(--warn);
+    outline-offset:4px;
+    border-radius:6px;
+  }
+  .warning{
+    font-size:13px;
+    color:var(--warn);
+    margin-top:14px;
+    min-height:16px;
+  }
+  .nav-row{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+  }
+  .btn{
+    flex:1;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    padding:13px 16px;
+    border-radius:var(--radius);
+    cursor:pointer;
+    border:1px solid transparent;
+    transition:background .15s ease, border-color .15s ease, opacity .15s ease;
+  }
+  .btn-back{
+    background:var(--surface);
+    border-color:var(--border);
+    color:var(--text);
+    flex:0.8;
+  }
+  .btn-back:hover:not(:disabled){
+    border-color:var(--text-muted);
+  }
+  .btn-back:disabled{
+    opacity:.35;
+    cursor:not-allowed;
+  }
+  .btn-next{
+    background:var(--accent);
+    color:#fff;
+  }
+  .btn-next:hover{
+    background:var(--accent-dark);
+  }
+  .btn-next.is-final{
+    background:var(--send);
+  }
+  .btn-next.is-final:hover{
+    background:var(--send-hover);
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Character Bible — Alan &amp; Pacarnya</h1>
+      <p>Jawab satu-satu biar gak bingung. Di akhir, jawaban langsung terkirim ke Rehan lewat WhatsApp.</p>
+      <div class="progress">
+        <span id="progressText">Langkah 1 dari 17</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="section-label" id="sectionLabel"></div>
+      <div class="q-heading" id="qHeading"></div>
+      <div id="qBody"></div>
+      <div class="warning" id="warningText"></div>
+      <div class="nav-row">
+        <button class="btn btn-back" id="backBtn">Kembali</button>
+        <button class="btn btn-next" id="nextBtn">Lanjut</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const PHONE = "6285256930785";
+
+  const steps = [
+    { id:"q1", section:"Alan (versi miskin)", type:"choice", text:"Umur & status", options:["Anak SMA (~17 th)","Kuliah / fresh grad (~21-23 th)","Udah kerja beberapa tahun (~26-28 th)"] },
+    { id:"q2", section:"Alan (versi miskin)", type:"choice", text:"Tinggi & body build", options:["Kurus & tinggi","Kurus & pendek/biasa","Sedang/proporsional","Berisi/gempal"] },
+    { id:"q3", section:"Alan (versi miskin)", type:"choice", text:"Warna kulit", options:["Sawo matang gelap","Sawo matang medium","Kuning langsat/terang"] },
+    { id:"q4", section:"Alan (versi miskin)", type:"choice", text:"Gaya rambut", options:["Cepak rapi","Berantakan/gondrong dikit","Botak/cepak banget","Poni turun nutup mata"] },
+    { id:"q5", section:"Alan (versi miskin)", type:"choice", text:"Ciri khas wajah", options:["Gak ada, simple aja","Pake kacamata","Ada tahi lalat/bekas luka kecil di wajah","Kumis/jenggot tipis"] },
+    { id:"q6", section:"Alan (versi miskin)", type:"choice", text:"Gaya pakaian sehari-hari", options:["Kaos oblong lusuh","Kemeja kerja/sekolah kucel","Jaket bekas + celana kain"] },
+
+    { id:"q7", section:"Alan (versi CEO)", type:"choice", text:"Gaya rambut CEO", options:["Tetep sama kayak versi miskin, cuma lebih rapi","Ganti total (misal cepak jadi undercut licin)"] },
+    { id:"q8", section:"Alan (versi CEO)", type:"choice", text:"Gaya outfit CEO", options:["Jas formal lengkap + dasi","Blazer smart casual (gak pake dasi)","Kemeja lengan panjang aja, gak pake jas"] },
+    { id:"q9", section:"Alan (versi CEO)", type:"choice", text:"Aksesoris/ciri khas tambahan", options:["Gak ada, plain aja","Jam tangan mewah kelihatan jelas","Kacamata frame tebal (gaya tech-CEO)"] },
+
+    { id:"pacarName", section:"Pacar Alan", type:"text", text:"Siapa nama pacarnya Alan?", placeholder:"Misal: Nadia" },
+
+    { id:"q10", section:"PACAR_DYNAMIC", type:"choice", text:"Umur & status", options:["Anak SMA (~17 th)","Kuliah / fresh grad (~21-23 th)","Udah kerja (~26-28 th)"] },
+    { id:"q11", section:"PACAR_DYNAMIC", type:"choice", text:"Tinggi & body build", options:["Tinggi & langsing","Sedang/proporsional","Mungil/pendek"] },
+    { id:"q12", section:"PACAR_DYNAMIC", type:"choice", text:"Warna kulit", options:["Sawo matang","Kuning langsat","Putih/terang"] },
+    { id:"q13", section:"PACAR_DYNAMIC", type:"choice", text:"Gaya rambut", options:["Panjang lurus","Panjang ikal/bergelombang","Pendek sebahu","Poni"] },
+    { id:"q14", section:"PACAR_DYNAMIC", type:"choice", text:"Ciri khas wajah", options:["Gak ada, simple","Behel/gigi rapi jadi sorotan","Tahi lalat khas (misal deket bibir)"] },
+    { id:"q15", section:"PACAR_DYNAMIC", type:"choice", text:"Gaya pakaian pas masih sama Alan", options:["Simple & apa adanya (kaos/kemeja biasa)","Modest tapi rapi"] },
+    { id:"q16", section:"PACAR_DYNAMIC", type:"choice", text:"Gaya pakaian pas udah sama cowok baru (glow up)", options:["Flashy/glamor (dress mahal, aksesoris branded)","Elegan minimalis tapi mewah","Trendy influencer-style"] },
+  ];
+
+  const answers = {};
+  let current = 0;
+
+  const sectionLabelEl = document.getElementById("sectionLabel");
+  const qHeadingEl = document.getElementById("qHeading");
+  const qBodyEl = document.getElementById("qBody");
+  const warningEl = document.getElementById("warningText");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const progressText = document.getElementById("progressText");
+  const progressFill = document.getElementById("progressFill");
+
+  function sectionLabelFor(step) {
+    if (step.section === "PACAR_DYNAMIC") {
+      const name = (answers["pacarName"] || "").trim();
+      return name ? name : "Pacar Alan";
+    }
+    return step.section;
+  }
+
+  function render() {
+    const step = steps[current];
+    warningEl.textContent = "";
+
+    sectionLabelEl.textContent = sectionLabelFor(step);
+    qHeadingEl.innerHTML = `<span class="num">${current + 1}.</span>${step.text}`;
+
+    qBodyEl.innerHTML = "";
+
+    if (step.type === "choice") {
+      const opts = document.createElement("div");
+      opts.className = "options";
+      step.options.forEach(optText => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn" + (answers[step.id] === optText ? " selected" : "");
+        btn.textContent = optText;
+        btn.addEventListener("click", () => {
+          answers[step.id] = optText;
+          [...opts.children].forEach(c => c.classList.remove("selected"));
+          btn.classList.add("selected");
+          opts.classList.remove("needs-attention");
+          warningEl.textContent = "";
+        });
+        opts.appendChild(btn);
+      });
+      qBodyEl.appendChild(opts);
+    } else if (step.type === "text") {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "text-input";
+      input.placeholder = step.placeholder || "";
+      input.value = answers[step.id] || "";
+      input.addEventListener("input", () => {
+        answers[step.id] = input.value;
+        input.classList.remove("needs-attention");
+        warningEl.textContent = "";
+      });
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") nextBtn.click();
+      });
+      qBodyEl.appendChild(input);
+      setTimeout(() => input.focus(), 0);
+    }
+
+    backBtn.disabled = current === 0;
+    const isLast = current === steps.length - 1;
+    nextBtn.textContent = isLast ? "Kirim Jawaban ke Rehan" : "Lanjut";
+    nextBtn.classList.toggle("is-final", isLast);
+
+    progressText.textContent = `Langkah ${current + 1} dari ${steps.length}`;
+    progressFill.style.width = `${((current + 1) / steps.length) * 100}%`;
+  }
+
+  function buildMessage() {
+    const lines = ["*Jawaban Character Bible - Alan & Pacarnya*", ""];
+    let lastSection = null;
+    steps.forEach((step, idx) => {
+      const label = sectionLabelFor(step);
+      if (label !== lastSection) {
+        lastSection = label;
+        lines.push(`*${label}*`);
+      }
+      lines.push(`${idx + 1}. ${step.text}: ${answers[step.id]}`);
+    });
+    return lines.join("\n");
+  }
+
+  backBtn.addEventListener("click", () => {
+    if (current > 0) {
+      current--;
+      render();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    const step = steps[current];
+    const value = answers[step.id];
+    const isEmpty = step.type === "text" ? !value || !value.trim() : !value;
+
+    if (isEmpty) {
+      warningEl.textContent = step.type === "text"
+        ? "Isi dulu namanya ya."
+        : "Pilih salah satu opsi dulu ya.";
+      const target = step.type === "text" ? qBodyEl.querySelector(".text-input") : qBodyEl.querySelector(".options");
+      if (target) target.classList.add("needs-attention");
+      return;
+    }
+
+    if (current === steps.length - 1) {
+      const message = buildMessage();
+      const url = `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
+      window.location.href = url;
+      return;
+    }
+
+    current++;
+    render();
+  });
+
+  render();
+</script>
+</body>
+</html>
