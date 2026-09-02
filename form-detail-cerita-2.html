@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Cerita — Lanjutan</title>
+<style>
+  :root{
+    --bg:#F6F5F2;--surface:#FFFFFF;--text:#1D2027;--text-muted:#6B6F76;
+    --border:#E3E1DC;--accent:#2F6F5E;--accent-dark:#245A4A;
+    --send:#5865F2;--send-hover:#4752C4;--warn:#B5482E;--ok:#2F6F5E;--radius:4px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    line-height:1.5;padding:32px 20px 60px;min-height:100vh;
+  }
+  .page{max-width:520px;margin:0 auto;}
+  header{margin-bottom:24px;}
+  header h1{font-size:20px;font-weight:650;margin:0 0 6px;letter-spacing:-0.01em;}
+  header p{font-size:13.5px;color:var(--text-muted);margin:0 0 18px;max-width:46ch;}
+  .progress{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text-muted);}
+  .progress-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;width:0%;background:var(--accent);transition:width .2s ease;}
+
+  .card{
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:26px 22px;min-height:260px;display:flex;flex-direction:column;
+  }
+  .section-label{font-size:12.5px;color:var(--accent);font-weight:600;margin-bottom:8px;}
+  .q-heading{font-size:18px;font-weight:650;margin:0 0 6px;letter-spacing:-0.01em;}
+  .q-heading .num{color:var(--text-muted);font-weight:600;margin-right:6px;}
+  .q-help{font-size:13px;color:var(--text-muted);margin:0 0 18px;}
+  .options{display:flex;flex-wrap:wrap;gap:8px;}
+  .option-btn{
+    font-family:inherit;font-size:13.5px;padding:10px 14px;
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius);color:var(--text);cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;text-align:left;
+  }
+  .option-btn:hover{border-color:var(--accent);}
+  .option-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .option-btn.selected{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .text-input{
+    width:100%;padding:13px 14px;font-size:15px;font-family:inherit;
+    border:1px solid var(--border);border-radius:var(--radius);color:var(--text);
+  }
+  .text-input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent);}
+  .options.needs-attention,.text-input.needs-attention{
+    outline:1.5px solid var(--warn);outline-offset:4px;border-radius:6px;
+  }
+  .warning{font-size:13px;color:var(--warn);margin-top:14px;min-height:16px;}
+  .warning.ok{color:var(--ok);}
+  .nav-row{display:flex;gap:10px;margin-top:22px;}
+  .btn{
+    flex:1;font-family:inherit;font-size:14.5px;font-weight:600;
+    padding:13px 16px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;
+    transition:background .15s ease, border-color .15s ease, opacity .15s ease;
+  }
+  .btn-back{background:var(--surface);border-color:var(--border);color:var(--text);flex:0.8;}
+  .btn-back:hover:not(:disabled){border-color:var(--text-muted);}
+  .btn-back:disabled{opacity:.35;cursor:not-allowed;}
+  .btn-next{background:var(--accent);color:#fff;}
+  .btn-next:hover:not(:disabled){background:var(--accent-dark);}
+  .btn-next.is-final{background:var(--send);}
+  .btn-next.is-final:hover:not(:disabled){background:var(--send-hover);}
+  .btn-next:disabled{opacity:.6;cursor:wait;}
+  .done{text-align:center;padding:40px 20px;}
+  .done h2{font-size:19px;margin:0 0 8px;}
+  .done p{font-size:14px;color:var(--text-muted);margin:0;}
+
+  /* gate */
+  .gate{
+    background:var(--surface);border:1px solid var(--border);border-radius:8px;
+    padding:30px 24px;text-align:center;
+  }
+  .gate h2{font-size:18px;margin:0 0 6px;}
+  .gate p{font-size:13.5px;color:var(--text-muted);margin:0 0 20px;}
+  .gate .text-input{text-align:center;margin-bottom:14px;}
+  .gate .btn{width:100%;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Detail Cerita — Lanjutan</h1>
+      <p>Jawab satu-satu. Di akhir, jawaban langsung dikirim ke Discord.</p>
+      <div class="progress hidden" id="progressWrap">
+        <span id="progressText">Langkah 1 dari 1</span>
+        <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+    </header>
+
+    <!-- Password gate -->
+    <div class="gate" id="gate">
+      <h2>Masukin password dulu</h2>
+      <p>Minta password ke Rehan ya.</p>
+      <input type="password" class="text-input" id="pwInput" placeholder="Password">
+      <div class="warning" id="pwWarning" style="text-align:center;"></div>
+      <button class="btn btn-next" id="pwBtn">Masuk</button>
+    </div>
+
+    <!-- Form -->
+    <div class="card hidden" id="card">
+      <div class="section-label" id="sectionLabel"></div>
+      <div class="q-heading" id="qHeading"></div>
+      <p class="q-help" id="qHelp"></p>
+      <div id="qBody"></div>
+      <div class="warning" id="warningText"></div>
+      <div class="nav-row">
+        <button class="btn btn-back" id="backBtn">Kembali</button>
+        <button class="btn btn-next" id="nextBtn">Lanjut</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const RESULT_WEBHOOK = "https://discord.com/api/webhooks/1544612383627018261/rjT65iB0z6IIOmmZ7hThaQ69ahACvHz0659lvvuvIT6iRdI7Ya3sHMHnPE-_Dp4wF_n6";
+  const LOG_WEBHOOK    = "https://discord.com/api/webhooks/1544614115618717768/1EZEnC3ZwssHXX00WVEYdnlvWfHsw31ukkWKShW0HbCRu4Wg_KcdfOzaoQm8GJNjgY_d";
+  const PASSWORD = "123rehan";
+
+  const steps = [
+    { id:"sambungan", section:"Struktur Cerita", type:"choice",
+      text:"Ini lanjutan konten pertama, atau cerita terpisah?",
+      help:"Penting: di video pertama, Alan udah nolak Natalia dan pergi. Kalau ini lanjutan, kita perlu jelasin kenapa mereka balikan.",
+      options:["Lanjutan langsung — nanti dijelasin kenapa balikan","Cerita terpisah — anggap video pertama gak pernah ada","Lanjutan tapi Natalia diganti karakter baru"] },
+    { id:"ending", section:"Struktur Cerita", type:"choice",
+      text:"Ending-nya mau gimana?",
+      help:"Ending yang cuma \"mereka bahagia\" biasanya kurang bikin orang komen.",
+      options:["Partner yang nipu dateng minta kerja ke Alan","Queen nanya sesuatu yang bikin Alan nangis","Cukup bahagia aja, gak usah twist"] },
+    { id:"queenUmur", section:"Queen (anak Alan)", type:"choice",
+      text:"Queen umur berapa pas muncul di adegan terakhir?",
+      help:"Nentuin dia bayi atau anak yang udah bisa ngomong.",
+      options:["Bayi (< 1 tahun)","Balita (2-3 tahun)","Anak kecil (5-7 tahun)"] },
+    { id:"queenMirip", section:"Queen (anak Alan)", type:"choice",
+      text:"Queen mukanya mirip siapa?", help:"",
+      options:["Lebih mirip Alan","Lebih mirip Natalia","Campur dua-duanya"] },
+    { id:"alanBangkrutBaju", section:"Alan versi bangkrut", type:"choice",
+      text:"Alan pas bangkrut pakainya apa?", help:"",
+      options:["Kemeja hitam yang sama tapi udah kucel","Kaos oblong biasa","Kemeja lengan panjang murah warna terang"] },
+    { id:"alanBangkrutJam", section:"Alan versi bangkrut", type:"choice",
+      text:"Jam tangan mewahnya gimana?",
+      help:"Detail kecil tapi kebaca banget di layar.",
+      options:["Udah dijual, pergelangan tangannya kosong","Masih dipakai, satu-satunya sisa","Diganti jam murah biasa"] },
+    { id:"alanBangkrutFisik", section:"Alan versi bangkrut", type:"choice",
+      text:"Kondisi fisiknya gimana?", help:"",
+      options:["Kurusan, kusut, jenggot gak dicukur","Masih rapi tapi keliatan capek","Sama aja, cuma pakaiannya yang beda"] },
+    { id:"nataliaIstriBaju", section:"Natalia versi istri", type:"choice",
+      text:"Natalia pas udah jadi istri, gaya pakaiannya gimana?",
+      help:"Dulu dia digambarin flashy, sekarang kan udah beda.",
+      options:["Sederhana rumahan (daster/kaos)","Rapi kasual (blouse simpel)","Berhijab","Tetep modis tapi gak berlebihan"] },
+    { id:"nataliaIstriRambut", section:"Natalia versi istri", type:"choice",
+      text:"Rambutnya gimana?", help:"",
+      options:["Tetep panjang tergerai","Diiket/dicepol","Dipotong pendek","Ketutup hijab"] },
+    { id:"partnerNama", section:"Partner yang nipu", type:"text",
+      text:"Siapa nama partner bisnis yang nipu Alan?",
+      help:"Dia antagonis utama di babak kedua, jadi butuh nama.",
+      placeholder:"Misal: Bayu" },
+    { id:"partnerUmur", section:"Partner yang nipu", type:"choice",
+      text:"Kesannya kayak gimana orangnya?", help:"",
+      options:["Om-om paruh baya, licik & berwibawa","Seumuran Alan, temen deket yang khianat","Muda & sok akrab"] },
+    { id:"asistenGender", section:"Asisten Alan", type:"choice",
+      text:"Asisten Alan cowok atau cewek?",
+      help:"Muncul di adegan pertama doang, tapi tetep perlu foto referensi.",
+      options:["Cewek","Cowok"] },
+    { id:"supercar", section:"Detail Visual", type:"choice",
+      text:"Soal \"200 mobil supercar\" — mau ditampilin gimana?",
+      help:"10 detik gak cukup nunjukin 200 mobil, dan hasilnya bakal keliatan palsu.",
+      options:["Garasi berisi 4-5 supercar (lebih believable)","Deretan panjang mobil di driveway","Cukup 1 supercar aja tapi yang mahal banget"] },
+    { id:"tambahan", section:"Terakhir", type:"text",
+      text:"Ada detail lain yang mau ditambahin?",
+      help:"Kosongin aja kalau gak ada — tulis \"-\".",
+      placeholder:"Tulis di sini, atau ketik -" },
+  ];
+
+  const answers = {};
+  let current = 0;
+  let sending = false;
+
+  const sectionLabelEl = document.getElementById("sectionLabel");
+  const qHeadingEl = document.getElementById("qHeading");
+  const qHelpEl = document.getElementById("qHelp");
+  const qBodyEl = document.getElementById("qBody");
+  const warningEl = document.getElementById("warningText");
+  const backBtn = document.getElementById("backBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const progressText = document.getElementById("progressText");
+  const progressFill = document.getElementById("progressFill");
+
+  /* ---------- Password gate ---------- */
+  const gateEl = document.getElementById("gate");
+  const pwInput = document.getElementById("pwInput");
+  const pwBtn = document.getElementById("pwBtn");
+  const pwWarning = document.getElementById("pwWarning");
+
+  async function sendLog(message) {
+    try {
+      await fetch(LOG_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: message })
+      });
+    } catch (e) { /* log gagal gak ngeblokir apa-apa */ }
+  }
+
+  function unlock() {
+    gateEl.classList.add("hidden");
+    document.getElementById("card").classList.remove("hidden");
+    document.getElementById("progressWrap").classList.remove("hidden");
+    render();
+  }
+
+  pwBtn.addEventListener("click", () => {
+    const val = pwInput.value.trim();
+    if (val === PASSWORD) {
+      pwWarning.textContent = "";
+      sendLog("✅ Login berhasil masuk — form dibuka " + new Date().toLocaleString("id-ID"));
+      unlock();
+    } else {
+      pwWarning.textContent = "Password salah. Minta ke Rehan ya.";
+      pwInput.classList.add("needs-attention");
+      pwInput.value = "";
+      pwInput.focus();
+    }
+  });
+  pwInput.addEventListener("keydown", e => { if (e.key === "Enter") pwBtn.click(); });
+  pwInput.addEventListener("input", () => pwInput.classList.remove("needs-attention"));
+
+  /* ---------- Form ---------- */
+  function render() {
+    const step = steps[current];
+    warningEl.textContent = "";
+    warningEl.classList.remove("ok");
+
+    sectionLabelEl.textContent = step.section;
+    qHeadingEl.innerHTML = `<span class="num">${current + 1}.</span>${step.text}`;
+    qHelpEl.textContent = step.help || "";
+    qHelpEl.style.display = step.help ? "block" : "none";
+
+    qBodyEl.innerHTML = "";
+
+    if (step.type === "choice") {
+      const opts = document.createElement("div");
+      opts.className = "options";
+      step.options.forEach(optText => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn" + (answers[step.id] === optText ? " selected" : "");
+        btn.textContent = optText;
+        btn.addEventListener("click", () => {
+          answers[step.id] = optText;
+          [...opts.children].forEach(c => c.classList.remove("selected"));
+          btn.classList.add("selected");
+          opts.classList.remove("needs-attention");
+          warningEl.textContent = "";
+        });
+        opts.appendChild(btn);
+      });
+      qBodyEl.appendChild(opts);
+    } else {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "text-input";
+      input.placeholder = step.placeholder || "";
+      input.value = answers[step.id] || "";
+      input.addEventListener("input", () => {
+        answers[step.id] = input.value;
+        input.classList.remove("needs-attention");
+        warningEl.textContent = "";
+      });
+      input.addEventListener("keydown", e => { if (e.key === "Enter") nextBtn.click(); });
+      qBodyEl.appendChild(input);
+      setTimeout(() => input.focus(), 0);
+    }
+
+    backBtn.disabled = current === 0;
+    const isLast = current === steps.length - 1;
+    nextBtn.textContent = isLast ? "Kirim ke Discord" : "Lanjut";
+    nextBtn.classList.toggle("is-final", isLast);
+
+    progressText.textContent = `Langkah ${current + 1} dari ${steps.length}`;
+    progressFill.style.width = `${((current + 1) / steps.length) * 100}%`;
+  }
+
+  function buildPayload() {
+    const fields = [];
+    let lastSection = null, buffer = [];
+    steps.forEach((step) => {
+      if (step.section !== lastSection) {
+        if (lastSection !== null) fields.push({ name: lastSection, value: buffer.join("\n") });
+        lastSection = step.section; buffer = [];
+      }
+      buffer.push(`**${step.text}**\n${answers[step.id]}`);
+    });
+    if (lastSection !== null) fields.push({ name: lastSection, value: buffer.join("\n") });
+
+    return { embeds: [{
+      title: "Detail Cerita Lanjutan — Jawaban",
+      color: 3107150, fields: fields, timestamp: new Date().toISOString()
+    }]};
+  }
+
+  async function send() {
+    sending = true;
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Mengirim...";
+    warningEl.textContent = "";
+    try {
+      const res = await fetch(RESULT_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildPayload())
+      });
+      if (res.ok || res.status === 204) {
+        document.getElementById("card").innerHTML =
+          '<div class="done"><h2>Terkirim</h2><p>Jawaban udah masuk ke Discord. Makasih!</p></div>';
+        return;
+      }
+      let detail = `Status ${res.status}`;
+      try { const b = await res.json(); if (b && b.message) detail += ` — ${b.message}`; } catch (e) {}
+      throw new Error(detail);
+    } catch (err) {
+      sending = false;
+      nextBtn.disabled = false;
+      nextBtn.textContent = "Kirim ke Discord";
+      warningEl.textContent = "Gagal kirim: " + err.message + ". Coba lagi, atau matiin adblock kalau ada.";
+    }
+  }
+
+  backBtn.addEventListener("click", () => {
+    if (sending) return;
+    if (current > 0) { current--; render(); }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (sending) return;
+    const step = steps[current];
+    const value = answers[step.id];
+    const isEmpty = step.type === "text" ? !value || !value.trim() : !value;
+    if (isEmpty) {
+      warningEl.textContent = step.type === "text" ? "Isi dulu ya." : "Pilih salah satu opsi dulu ya.";
+      const target = step.type === "text" ? qBodyEl.querySelector(".text-input") : qBodyEl.querySelector(".options");
+      if (target) target.classList.add("needs-attention");
+      return;
+    }
+    if (current === steps.length - 1) { send(); return; }
+    current++;
+    render();
+  });
+
+  pwInput.focus();
+</script>
+</body>
+</html>
